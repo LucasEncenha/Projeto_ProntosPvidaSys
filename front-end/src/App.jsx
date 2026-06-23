@@ -23,6 +23,7 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
+                
                 <div className="App">
                     <NavBar />
                     <Routes>
