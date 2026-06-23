@@ -34,9 +34,14 @@ class ResultadoExameService {
     }
 
     async salvar(formData) {
-        const response = await fetch('http://localhost:3000/api/resultados', {
+        const token = localStorage.getItem('auth_token');
+        const baseURL = `${import.meta.env.VITE_API_URL}/api`;
+
+        const response = await fetch(`${baseURL}/resultados`, {
             method: 'POST',
-            credentials: 'include',
+            headers: {
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
             body: formData
         });
         if (!response.ok) {

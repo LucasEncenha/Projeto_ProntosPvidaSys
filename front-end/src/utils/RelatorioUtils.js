@@ -8,8 +8,15 @@ export const gerarRelatorioPDF = async (rota, filtros = {}) => {
     });
 
     try {
-        const url = `http://localhost:3000/api/${rota}/relatorio?${params.toString()}`;
-        const response = await fetch(url, { credentials: 'include' });
+        const token = localStorage.getItem('auth_token');
+        const baseURL = `${import.meta.env.VITE_API_URL}/api`;
+        const url = `${baseURL}/${rota}/relatorio?${params.toString()}`;
+
+        const response = await fetch(url, {
+            headers: {
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            }
+        });
 
         if (!response.ok) {
             throw new Error(`Erro no servidor (${response.status})`);

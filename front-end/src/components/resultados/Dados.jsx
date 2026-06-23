@@ -2,6 +2,7 @@ import { Table, Modal, Button, Alert } from "react-bootstrap";
 import { BsTrash, BsFileEarmarkText, BsDownload } from "react-icons/bs";
 import { useState } from "react";
 import ResultadoExameService from "../../services/ResultadoExameService.js";
+const API = import.meta.env.VITE_API_URL;
 
 function Dados({ resultados, Cadastro }) {
     const [modalShow, setShowModal] = useState(false);
@@ -55,7 +56,7 @@ function Dados({ resultados, Cadastro }) {
                 <td>
                     {r.res_arquivo ? (
                         <a
-                            href={`http://localhost:3000${r.res_arquivo}`}
+                            href={`${API}${r.res_arquivo}`}
                             target="_blank"
                             rel="noreferrer"
                             className="btn btn-sm btn-outline-primary me-1"

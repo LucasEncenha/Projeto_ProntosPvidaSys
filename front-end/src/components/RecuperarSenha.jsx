@@ -3,6 +3,7 @@ import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const API = import.meta.env.VITE_API_URL;
 
 export default function RecuperarSenha() {
     const ETAPAS = { EMAIL: 'email', CODIGO: 'codigo', NOVA_SENHA: 'nova_senha', SUCESSO: 'sucesso' };
@@ -23,7 +24,7 @@ export default function RecuperarSenha() {
         if (!email) { setErro('Informe o e-mail.'); return; }
         setCarregando(true);
         try {
-            await axios.post('http://localhost:3000/auth/enviar-codigo', { email }, { withCredentials: true });
+            await axios.post(`${API}/auth/enviar-codigo`, { email });
             setEtapa(ETAPAS.CODIGO);
         } catch (error) {
             setErro(error.response?.data?.erro || 'Erro ao enviar código.');
@@ -38,7 +39,7 @@ export default function RecuperarSenha() {
         if (!codigo) { setErro('Informe o código.'); return; }
         setCarregando(true);
         try {
-            await axios.post('http://localhost:3000/auth/verificar-codigo', { email, codigo }, { withCredentials: true });
+            await axios.post(`${API}/auth/verificar-codigo`, { email, codigo });
             setEtapa(ETAPAS.NOVA_SENHA);
         } catch (error) {
             setErro(error.response?.data?.erro || 'Código inválido ou expirado.');
@@ -54,7 +55,7 @@ export default function RecuperarSenha() {
         if (novaSenha !== confirmarSenha) { setErro('As senhas não coincidem.'); return; }
         setCarregando(true);
         try {
-            await axios.post('http://localhost:3000/auth/redefinir-senha', { email, codigo, novaSenha }, { withCredentials: true });
+            await axios.post(`${API}/auth/redefinir-senha`, { email, codigo, novaSenha });
             setEtapa(ETAPAS.SUCESSO);
         } catch (error) {
             setErro(error.response?.data?.erro || 'Erro ao redefinir senha.');
@@ -67,7 +68,7 @@ export default function RecuperarSenha() {
         setErro('');
         setCarregando(true);
         try {
-            await axios.post('http://localhost:3000/auth/enviar-codigo', { email }, { withCredentials: true });
+            await axios.post(`${API}/auth/enviar-codigo`, { email });
             setCodigo('');
             alert('Novo código enviado!');
         } catch (error) {

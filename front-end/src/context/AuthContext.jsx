@@ -1,45 +1,62 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
+const API = import.meta.env.VITE_API_URL;
+
 export const AuthContext = createContext();
 
-export function AuthProvider({children}) {
+export function AuthProvider({ children }) {
     const [usuario, setUsuario] = useState(null);
     const [carregando, setCarregando] = useState(true);
 
     useEffect(() => {
-        axios.get('http://localhost:3000/auth/perfil', {withCredentials: true})
-        .then(res => setUsuario(res.data.usuario))
-        .catch(() => setUsuario(null))
-        .finally(() => setCarregando(false));
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+            setCarregando(false);
+            return;
+        }
+
+        axios.get(`${API}/auth/perfil`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(res => setUsuario(res.data.usuario))
+            .catch(() => {
+                localStorage.removeItem('auth_token');
+                setUsuario(null);
+            })
+            .finally(() => setCarregando(false));
     }, []);
 
     async function login(email, senha) {
-        const res = await axios.post('http://localhost:3000/auth/login', {email, senha}, {withCredentials: true});
-        setUsuario(res.data.usuario);
+        const res = await axios.post(`${API}/auth/login`, { email, senha });
+        const { token, usuario } = res.data;
+        localStorage.setItem('auth_token', token);
+        setUsuario(usuario);
     }
 
     async function registrar(nome, email, senha) {
-        await axios.post('http://localhost:3000/auth/register', {nome, email, senha}, {withCredentials: true});
+        await axios.post(`${API}/auth/register`, { nome, email, senha });
     }
 
     async function logout() {
         try {
-            await axios.post('http://localhost:3000/auth/logout', {}, {withCredentials: true});
+            const token = localStorage.getItem('auth_token');
+            await axios.post(`${API}/auth/logout`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
         } catch (error) {
             console.error("Erro ao comunicar logout ao servidor:", error);
         } finally {
-            setUsuario(null); 
+            localStorage.removeItem('auth_token');
+            setUsuario(null);
         }
     }
 
     async function alterarSenha(senhaAtual, novaSenha) {
-        try {
-            await axios.put('http://localhost:3000/auth/alterar-senha', {senhaAtual, novaSenha}, {withCredentials: true});
-        } catch (error) {
-            console.error("Erro ao alterar senha:", error);
-            throw error;
-        }
+        const token = localStorage.getItem('auth_token');
+        await axios.put(`${API}/auth/alterar-senha`, { senhaAtual, novaSenha }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
     }
 
     return (

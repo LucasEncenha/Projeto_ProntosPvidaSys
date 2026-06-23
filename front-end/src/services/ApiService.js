@@ -1,12 +1,20 @@
-const API_URL = 'http://localhost:3000/api';
-const DEFAULT_OPTIONS = {
-    credentials: 'include'
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
+
+const getHeaders = () => {
+    const token = localStorage.getItem('auth_token');
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
 };
 
 class ApiService {
     static async handleResponse(response) {
-        if(!response.ok) {
-            const error = await response.json().catch(() => ({error: 'Erro desconhecido'}));
+        if (response.status === 304) return null;
+        if (response.status === 204) return null;
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
             throw new Error(error.error || `Erro HTTP: ${response.status}`);
         }
         return response.json();
@@ -14,19 +22,26 @@ class ApiService {
 
     static async get(endpoint) {
         try {
-            const response = await fetch(`${API_URL}${endpoint}`);
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                headers: getHeaders()
+            });
             return await this.handleResponse(response);
         } catch (error) {
             console.error("Erro na requisição GET:", error);
+            throw error;
         }
     }
 
     static async delete(endpoint) {
         try {
-            const response = await fetch(`${API_URL}${endpoint}`, {method: 'DELETE'});
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
             return await this.handleResponse(response);
         } catch (error) {
             console.error("Erro na requisição DELETE:", error);
+            throw error;
         }
     }
 
@@ -34,9 +49,7 @@ class ApiService {
         try {
             const response = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
+                headers: getHeaders(),
                 body: JSON.stringify(data)
             });
             return await this.handleResponse(response);
@@ -50,9 +63,7 @@ class ApiService {
         try {
             const response = await fetch(`${API_URL}${endpoint}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-type': 'application/json'
-                },
+                headers: getHeaders(),
                 body: JSON.stringify(data)
             });
             return await this.handleResponse(response);
@@ -60,27 +71,6 @@ class ApiService {
             console.error("Erro na requisição PUT:", error);
             throw error;
         }
-    }
-
-    async login(email, password) {
-        return this.request('/auth', {
-            method: 'POST',
-            body: JSON.stringify({ email, password }),
-            credentials: 'include' // Para cookies
-        })
-    }
-
-    async logout() {
-        return this.request('/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-        })
-    }
-
-     async checkAuth() {
-        return this.request('/auth/me', {
-            credentials: 'include'
-        })
     }
 }
 
