@@ -12,7 +12,7 @@ import TelaDoacoes from "./components/doacoes/Tela.jsx";
 import TelaMedicos from "./components/medicos/Tela.jsx";
 import TelaConsultas from "./components/consultas/Tela.jsx";
 import TelaResultados from "./components/resultados/Tela.jsx";
-
+import TelaUsuarios from './components/usuarios/TelaUsuarios.jsx';
 
 import NavBar from "./components/NavBar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -84,6 +84,12 @@ function App() {
                         <Route path="/resultados" element={
                             <ProtectedRoute>
                                 <TelaResultados />
+                            </ProtectedRoute>
+                        } />
+
+                        <Route path="/usuarios" element={
+                            <ProtectedRoute roles={['admin']}>
+                                <TelaUsuarios />
                             </ProtectedRoute>
                         } />
 

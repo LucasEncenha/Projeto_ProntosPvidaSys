@@ -10,6 +10,8 @@ const NavBar = () => {
         }
     };
 
+    const isAdmin = usuario?.nivel === 'admin';
+
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
             <div className="container">
@@ -33,10 +35,20 @@ const NavBar = () => {
                                         Menu
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-                                        <Link className="nav-link" to="/tipo-exames">Tipo-Exames</Link>
-                                        <Link className="nav-link" to="/doadores">Doadores</Link>
-                                        <Link className="nav-link" to="/medicos">Médicos</Link>
-                                        <Link className="nav-link" to="/resultados">Resultados de Exames</Link>
+                                        <li><Link className="dropdown-item" to="/tipo-exames">Tipo-Exames</Link></li>
+                                        <li><Link className="dropdown-item" to="/doadores">Doadores</Link></li>
+                                        <li><Link className="dropdown-item" to="/medicos">Médicos</Link></li>
+                                        <li><Link className="dropdown-item" to="/resultados">Resultados de Exames</Link></li>
+                                        {isAdmin && (
+                                            <>
+                                                <li><hr className="dropdown-divider" /></li>
+                                                <li>
+                                                    <Link className="dropdown-item text-warning" to="/usuarios">
+                                                        👤 Gerenciar Usuários
+                                                    </Link>
+                                                </li>
+                                            </>
+                                        )}
                                     </ul>
                                 </li>
                             </ul>
@@ -44,10 +56,17 @@ const NavBar = () => {
 
                         <div className="navbar-nav">
                             <span className="navbar-text me-3">
-                                <Link className="nav-link" to="/perfil">Olá, {usuario.nome} ({usuario.nivel})</Link>
+                                <Link className="nav-link" to="/perfil">
+                                    Olá, {usuario.nome}
+                                    {isAdmin && (
+                                        <span className="badge bg-danger ms-1" style={{ fontSize: '0.65rem' }}>
+                                            admin
+                                        </span>
+                                    )}
+                                </Link>
                             </span>
                             <button
-                                className="btn btn-outline-light btn-sm mb-3  mt-3"
+                                className="btn btn-outline-light btn-sm mb-3 mt-3"
                                 onClick={handleLogout}
                             >
                                 Sair

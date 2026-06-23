@@ -27,14 +27,8 @@ class AuthController {
                 { expiresIn, issuer: 'myapp' }
             );
 
-            res.cookie('auth_token', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 24 * 60 * 60 * 1000
-            });
-
             return res.json({
+                token,
                 usuario: {
                     id: user.usu_id,
                     nome: user.usu_nome,
@@ -226,7 +220,6 @@ class AuthController {
 
     static async logout(req, res) {
         try {
-            res.clearCookie('auth_token');
             return res.json({ mensagem: 'Logout realizado com sucesso' });
         } catch (error) {
             console.error("Erro ao fazer logout: ", error);

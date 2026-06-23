@@ -7,6 +7,7 @@ function ModalCadastrar({ show, onHide, Cadastro }) {
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' });
 
     const [formPaciente, setFormPaciente] = useState({
+        pa_rgp: '',
         pa_cpf: '',
         pa_nome: '',
         pa_data_nascimento: '',
@@ -19,6 +20,7 @@ function ModalCadastrar({ show, onHide, Cadastro }) {
 
     const validarFormulario = () => {
         const novosErros = {};
+        if (!formPaciente.pa_rgp) novosErros.pa_rgp = 'O RGP é obrigatório.';
         if (!formPaciente.pa_cpf) novosErros.pa_cpf = 'O CPF do paciente é obrigatório.';
         if (!formPaciente.pa_nome) novosErros.pa_nome = 'O nome é obrigatório.';
         if (!formPaciente.pa_data_nascimento) novosErros.pa_data_nascimento = 'A data de nascimento é obrigatória.';
@@ -45,19 +47,19 @@ function ModalCadastrar({ show, onHide, Cadastro }) {
 
         try {
             await PacienteService.salvar(formPaciente);
-            setFormPaciente({ pa_cpf: '', pa_nome: '', pa_data_nascimento: '', pa_telefone: '', pa_endereco: '', pa_email: '' });
+            setFormPaciente({ pa_rgp: '', pa_cpf: '', pa_nome: '', pa_data_nascimento: '', pa_telefone: '', pa_endereco: '', pa_email: '' });
             setErros({});
             setMensagem({ tipo: 'success', texto: 'Paciente cadastrado com sucesso!' });
             if (Cadastro) Cadastro();
         } catch (error) {
-            setMensagem({ tipo: 'danger', texto: 'Erro ao salvar paciente.' });
+            setMensagem({ tipo: 'danger', texto: error.message || 'Erro ao salvar paciente.' });
         }
     };
 
     const handleClose = () => {
         setMensagem({ tipo: '', texto: '' });
         setErros({});
-        setFormPaciente({ pa_cpf: '', pa_nome: '', pa_data_nascimento: '', pa_telefone: '', pa_endereco: '', pa_email: '' });
+        setFormPaciente({ pa_rgp: '', pa_cpf: '', pa_nome: '', pa_data_nascimento: '', pa_telefone: '', pa_endereco: '', pa_email: '' });
         onHide();
     };
 
@@ -74,7 +76,22 @@ function ModalCadastrar({ show, onHide, Cadastro }) {
                     )}
 
                     <Row>
-                        <Col md={6} className="mb-3">
+                        <Col md={4} className="mb-3">
+                            <Form.Group>
+                                <Form.Label>RGP *</Form.Label>
+                                <Form.Control
+                                    placeholder="Ex: 2024001"
+                                    name="pa_rgp"
+                                    value={formPaciente.pa_rgp}
+                                    onChange={handleChange}
+                                    isInvalid={!!erros.pa_rgp}
+                                />
+                                <Form.Control.Feedback type="invalid">{erros.pa_rgp}</Form.Control.Feedback>
+                                <Form.Text className="text-muted">Registro Geral do Paciente</Form.Text>
+                            </Form.Group>
+                        </Col>
+
+                        <Col md={4} className="mb-3">
                             <Form.Group>
                                 <Form.Label>CPF *</Form.Label>
                                 <Form.Control
@@ -90,7 +107,7 @@ function ModalCadastrar({ show, onHide, Cadastro }) {
                             </Form.Group>
                         </Col>
 
-                        <Col md={6} className="mb-3">
+                        <Col md={4} className="mb-3">
                             <Form.Group>
                                 <Form.Label>Nome do paciente *</Form.Label>
                                 <Form.Control

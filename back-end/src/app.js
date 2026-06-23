@@ -13,7 +13,7 @@ import MedicoRotas from './routes/MedicoRotas.js';
 import ConsultaRotas from './routes/ConsultaRotas.js';
 import ResultadoExameRotas from './routes/ResultadoExameRotas.js';
 import AlertaRotas from './routes/AlertaRotas.js';
-
+import UsuarioRotas from './routes/UsuarioRotas.js';
 import { iniciarAlertas } from './services/AlertaJob.js';
 
 dotenv.config();
@@ -40,6 +40,7 @@ app.use('/api', MedicoRotas);
 app.use('/api', ConsultaRotas);
 app.use('/api', ResultadoExameRotas);
 app.use('/api', AlertaRotas);
+app.use('/api', UsuarioRotas);
 
 app.get('/',(req,res) => {
     res.json({message: 'API pacientes está rodando'})
