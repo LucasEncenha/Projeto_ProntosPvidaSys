@@ -9,6 +9,7 @@ function ModalEditar({ show, onHide, editandoPaciente, Cadastro }) {
 
     const [formPaciente, setFormPaciente] = useState({
         pa_id: '',
+        pa_rgp: '', 
         pa_cpf: '',
         pa_nome: '',
         pa_data_nascimento: '',
@@ -19,11 +20,19 @@ function ModalEditar({ show, onHide, editandoPaciente, Cadastro }) {
 
     useEffect(() => {
         if (editandoPaciente) {
+            let dataFormatadaBr = '';
+            if (editandoPaciente.pa_data_nascimento) {
+                const dataLimpa = editandoPaciente.pa_data_nascimento.split('T')[0];
+                const [ano, mes, dia] = dataLimpa.split('-');
+                dataFormatadaBr = `${dia}/${mes}/${ano}`;
+            }
+
             setFormPaciente({
                 pa_id: editandoPaciente.pa_id,
+                pa_rgp: editandoPaciente.pa_rgp || '',
                 pa_nome: editandoPaciente.pa_nome || '',
                 pa_cpf: editandoPaciente.pa_cpf || '',
-                pa_data_nascimento: editandoPaciente.pa_data_nascimento || '',
+                pa_data_nascimento: dataFormatadaBr,
                 pa_telefone: editandoPaciente.pa_telefone || '',
                 pa_endereco: editandoPaciente.pa_endereco || '',
                 pa_email: editandoPaciente.pa_email || ''
@@ -41,6 +50,7 @@ function ModalEditar({ show, onHide, editandoPaciente, Cadastro }) {
 
     const validarFormulario = () => {
         const novosErros = {};
+        if (!formPaciente.pa_rgp) novosErros.pa_rgp = 'O RGP é obrigatório.';
         if (!formPaciente.pa_cpf) novosErros.pa_cpf = 'O CPF do paciente é obrigatório.';
         if (!formPaciente.pa_nome) novosErros.pa_nome = 'O nome é obrigatório.';
         if (!formPaciente.pa_data_nascimento) novosErros.pa_data_nascimento = 'A data de nascimento é obrigatória.';
@@ -60,7 +70,15 @@ function ModalEditar({ show, onHide, editandoPaciente, Cadastro }) {
         }
 
         try {
-            await PacienteService.salvar(formPaciente);
+            const [dia, mes, ano] = formPaciente.pa_data_nascimento.split('/');
+            const dataFormatadaDb = `${ano}-${mes}-${dia}`;
+
+            const dadosParaEnviar = {
+                ...formPaciente,
+                pa_data_nascimento: dataFormatadaDb
+            };
+
+            await PacienteService.salvar(dadosParaEnviar);
             setErros({});
             setMensagem({ tipo: 'success', texto: 'Paciente atualizado com sucesso!' });
             if (Cadastro) Cadastro();
@@ -91,7 +109,14 @@ function ModalEditar({ show, onHide, editandoPaciente, Cadastro }) {
                     )}
 
                     <Row>
-                        <Col md={6} className="mb-3">
+                        <Col md={3} className="mb-3">
+                            <Form.Group>
+                                <Form.Label>RGP do paciente</Form.Label>
+                                <p className="m-1">{formPaciente.pa_rgp}</p>
+                            </Form.Group>
+                        </Col>
+
+                        <Col md={3} className="mb-3">
                             <Form.Group>
                                 <Form.Label>CPF do paciente</Form.Label>
                                 <p className="m-1">{formPaciente.pa_cpf}</p>
@@ -159,7 +184,7 @@ function ModalEditar({ show, onHide, editandoPaciente, Cadastro }) {
                                     isInvalid={!!erros.pa_email}
                                 />
                                 <Form.Control.Feedback type="invalid">{erros.pa_email}</Form.Control.Feedback>
-                                <Form.Text className="text-muted">Necessário para receber alertas de consultas e exames.</Form.Text>
+                                <Form.Text className="text-muted">Necessário para receber alertas de consultas.</Form.Text>
                             </Form.Group>
                         </Col>
 

@@ -46,7 +46,15 @@ function ModalCadastrar({ show, onHide, Cadastro }) {
         }
 
         try {
-            await PacienteService.salvar(formPaciente);
+            const [dia, mes, ano] = formPaciente.pa_data_nascimento.split('/');
+            const dataFormatadaDb = `${ano}-${mes}-${dia}`;
+
+            const dadosParaEnviar = {
+                ...formPaciente,
+                pa_data_nascimento: dataFormatadaDb
+            };
+
+            await PacienteService.salvar(dadosParaEnviar);
             setFormPaciente({ pa_rgp: '', pa_cpf: '', pa_nome: '', pa_data_nascimento: '', pa_telefone: '', pa_endereco: '', pa_email: '' });
             setErros({});
             setMensagem({ tipo: 'success', texto: 'Paciente cadastrado com sucesso!' });
@@ -168,7 +176,7 @@ function ModalCadastrar({ show, onHide, Cadastro }) {
                                     isInvalid={!!erros.pa_email}
                                 />
                                 <Form.Control.Feedback type="invalid">{erros.pa_email}</Form.Control.Feedback>
-                                <Form.Text className="text-muted">Necessário para receber alertas de consultas e exames.</Form.Text>
+                                <Form.Text className="text-muted">Necessário para receber alertas de consultas.</Form.Text>
                             </Form.Group>
                         </Col>
 
